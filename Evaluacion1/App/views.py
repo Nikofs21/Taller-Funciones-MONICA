@@ -47,7 +47,7 @@ def mostrar_niveles(request):
         try:
             estado_aire = SensorParticulaService.obtener_estado_aire(particula_id, nombre, fecha)
             particulas[nombre] = {'estado': estado_aire, 'descripcion': descripcion}
-            print(particulas)
+            
         except SensorParticulaService.SensorParticulaNoEncontrada:
             particulas[nombre] = {'estado': 'No hay datos', 'descripcion': descripcion}
 
