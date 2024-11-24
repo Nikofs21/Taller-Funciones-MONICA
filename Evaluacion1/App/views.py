@@ -14,6 +14,10 @@ def IndexView(request):
 
 
 def mostrar_niveles(request):
+    """
+    Vista que muestra los niveles de calidad del aire para una comuna seleccionada y una fecha específica.
+    """
+    # Obtener comuna seleccionada
     comuna_id = request.GET.get('comuna_id')
     if not comuna_id:
         return render(request, 'error.html', {'mensaje': 'Comuna no especificada.'})
@@ -23,10 +27,12 @@ def mostrar_niveles(request):
     except ValueError:
         return render(request, 'error.html', {'mensaje': 'ID de comuna no válido.'})
 
-    comuna = ComunaServiceDAO.obtener_comuna(comuna_id)
+    # Obtener datos de la comuna
+    comuna = ComunaDAO.obtener_comuna_por_id(comuna_id)
     if not comuna:
         return render(request, 'error.html', {'mensaje': 'Comuna no encontrada.'})
 
+    # Obtener fecha seleccionada o usar la fecha actual
     fecha = request.GET.get('fecha')
     if fecha:
         try:
@@ -36,13 +42,20 @@ def mostrar_niveles(request):
     else:
         fecha = datetime.now().strftime("%Y-%m-%d")
 
+    # Obtener datos de partículas y calcular sus niveles
     particulas_dto = ParticulasDAO.obtener_todas_las_particulas()
     particulas = {}
     for particula in particulas_dto:
         try:
+            # Obtener estado del aire para la comuna y la partícula seleccionada
             estado = SensorParticulaService.obtener_estado_aire(comuna_id, particula.id_particula, fecha)
             particulas[particula.nombre_particula] = {'estado': estado, 'descripcion': particula.descripcion}
         except SensorParticulaService.SensorParticulaNoEncontrada:
-            particulas[particula.nombre_particula] = {'estado': 'No hay datos', 'descripcion': particula.descripcion}
+            particulas[particula.nombre_particula] = {'estado': 'Sin datos', 'descripcion': particula.descripcion}
 
-    return render(request, 'semaforos.html', {'comuna': comuna, 'air_quality_data': particulas})
+    # Renderizar la página con los datos
+    return render(request, 'semaforos.html', {
+        'comuna': comuna,
+        'air_quality_data': particulas,
+        'fecha': fecha,
+    })

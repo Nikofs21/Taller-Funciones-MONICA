@@ -6,11 +6,13 @@ class SensorParticulaService:
         pass
 
     @staticmethod
+    @staticmethod
     def obtener_estado_aire(comuna_id, particula_id, fecha):
         """
         Calcula el estado del aire para una partícula específica en una comuna y fecha.
         """
-        promedio = SensorParticulaDAO.obtener_promedio_por_particula_y_fecha(particula_id, fecha)
+        # Pasar el `comuna_id` al método DAO
+        promedio = SensorParticulaDAO.obtener_promedio_por_particula_y_fecha(particula_id, comuna_id, fecha)
 
         if promedio is None:
             raise SensorParticulaService.SensorParticulaNoEncontrada
