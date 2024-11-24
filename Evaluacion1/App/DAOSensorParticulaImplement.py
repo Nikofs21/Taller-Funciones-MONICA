@@ -1,5 +1,7 @@
 
 from App.DAOSensorParticula import SensorParticulaDAO
+from App.models import SensorParticula
+from django.db.models import Avg
 
 
 
@@ -20,32 +22,34 @@ class SensorParticulaService:
             return registros_validados
 
     @staticmethod
-    def obtener_estado_aire(particula_id, nombre, fecha):
-
-        # Obtén el registro utilizando el DAO
-        sensor_particula = SensorParticulaDAO.obtener_registro_por_particula_y_fecha(particula_id, fecha)
-        
-        
-        if sensor_particula is None:
-            # Si no se encuentra el registro, lanza una excepción personalizada
-            raise SensorParticulaService.SensorParticulaNoEncontrada(
-                "No hay datos para esta partícula en la fecha especificada"
-            )
-        
-        registros_validados = sensor_particula.registros_validados
-        registros_preliminares = sensor_particula.registros_preliminares
-        registros_no_validados = sensor_particula.registros_no_validados
-        
-        # Llamada correcta al método estático
-        registro = SensorParticulaService.verificar_registros(
-            registros_validados, registros_preliminares, registros_no_validados
+    def obtener_estado_aire(comuna_id, particula_id, fecha):
+        """
+        Calcula el estado del aire para una partícula específica en una comuna y fecha.
+        """
+        registros = SensorParticula.objects.filter(
+            sensor__comunasensor__comuna_id=comuna_id,
+            particula_id=particula_id,
+            fecha=fecha
         )
 
-        estado, color = SensorParticulaService.determinar_estado_calidad_aire(registro, nombre)
-        
-        #print(f"Estado: {estado}, Color: {color}")
+        if not registros.exists():
+            raise SensorParticulaService.SensorParticulaNoEncontrada
 
-        return color
+        # Calcular el promedio de registros validados
+        promedio = registros.aggregate(avg_validado=Avg('registros_validados'))['avg_validado']
+
+        if promedio is None:
+            raise SensorParticulaService.SensorParticulaNoEncontrada
+
+        # Determinar el estado según el promedio
+        if promedio <= 50:
+            return 'verde'
+        elif promedio <= 100:
+            return 'amarillo'
+        elif promedio <= 150:
+            return 'naranja'
+        else:
+            return 'rojo'
     
     @staticmethod
     def determinar_estado_calidad_aire(valor, nom_particula):

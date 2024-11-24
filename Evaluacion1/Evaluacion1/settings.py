@@ -78,9 +78,16 @@ WSGI_APPLICATION = 'Evaluacion1.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'MONICA.sqlite3',
-    }
+        'ENGINE': 'mssql',
+        'NAME': 'MONICA',  # Nombre de tu base de datos
+        'USER': 'adminmonica',
+        'PASSWORD': 'Inacap2024',
+        'HOST': 'servidormonica.database.windows.net',  # Servidor SQL Server
+        'PORT': '',  # Déjalo vacío si usas el puerto predeterminado
+        'OPTIONS': {
+            'driver': 'ODBC Driver 17 for SQL Server',
+        },
+    },
 }
 
 
