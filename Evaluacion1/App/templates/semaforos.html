@@ -24,24 +24,81 @@
             </div>
         </div>
     </header>
-    <main>
-        <div class="semaforos-container">
-            {% for particula, datos in air_quality_data.items %}
-            <div class="semaforo">
-                <div class="traffic-light">
-                    <div class="light red {% if datos.estado == 'rojo' %}active{% endif %}"></div>
-                    <div class="light orange {% if datos.estado == 'naranja' %}active{% endif %}"></div>
-                    <div class="light yellow {% if datos.estado == 'amarillo' %}active{% endif %}"></div>
-                    <div class="light green {% if datos.estado == 'verde' %}active{% endif %}"></div>
+
+    <!-- Contenedor para el mensaje del procedimiento almacenado -->
+    {% if mensaje_calidad_aire %}
+    <div class="alert-message">
+        <p>{{ mensaje_calidad_aire }}</p>
+    </div>
+    {% endif %}
+
+    <div class="content-wrapper">
+        <main>
+            <div class="semaforos-container">
+                {% for particula, estado_color in air_quality_data.items %}
+                <div class="semaforo">
+                    <div class="traffic-light">
+                        {% if estado_color == 'No hay datos' %}
+                            <p class="no-data">Hoy no hay datos para {{ particula }}</p>
+                        {% else %}
+                        <div class="light red {% if estado_color.estado == 'rojo' %}active{% endif %}"></div>
+                        <div class="light orange {% if estado_color.estado == 'naranja' %}active{% endif %}"></div>
+                        <div class="light yellow {% if estado_color.estado == 'amarillo' %}active{% endif %}"></div>
+                        <div class="light green {% if estado_color.estado == 'verde' %}active{% endif %}"></div>
+                        {% endif %}
+                    </div>
+                    <div class="particle-name">{{ particula }}</div>
+                    <div class="particle-description">
+                        <small>{{ estado_color.descripcion }}</small>
+                    </div>
+                    <!-- Tooltip dinámico -->
+                    <div class="tooltip">
+                        <strong>{{ particula }} </strong> ({{ estado_color.descripcion }})
+                        {% if estado_color.estado == 'rojo' %}
+                        ☠️ Calidad Insalubre: Todos pueden experimentar efectos adversos para la salud.
+                        {% elif estado_color.estado == 'naranja' %}
+                        😷 Calidad No saludable para grupos sensibles: Precaución para personas vulnerables.
+                        {% elif estado_color.estado == 'amarillo' %}
+                        😐 Calidad Moderado: Condiciones aceptables, con leve riesgo para algunas personas.
+                        {% elif estado_color.estado == 'verde' %}
+                        😊 Calidad Bueno: Calidad satisfactoria, sin riesgos conocidos.
+                        {% else %}
+                        ❓ Sin datos disponibles para esta partícula.
+                        {% endif %}
+                    </div>
                 </div>
-                <div class="particle-name">{{ particula }}</div>
-                <div class="particle-description">
-                    <small>{{ datos.descripcion }}</small>
-                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
+        </main>
+    </div>
+
+    <!-- Footer con Tooltips -->
+    <div class="footer">
+        <div class="scale-item good">
+            Bueno
+            <div class="tooltip">
+                😊 La calidad del aire se considera satisfactoria y la contaminación representa poco o ningún riesgo.
+            </div>
         </div>
-    </main>
+        <div class="scale-item moderate">
+            Moderado
+            <div class="tooltip">
+                😐 La calidad del aire es aceptable; sin embargo, para algunos contaminantes podría haber un riesgo moderado.
+            </div>
+        </div>
+        <div class="scale-item unhealthy-groups">
+            No es saludable para grupos sensibles
+            <div class="tooltip">
+                😷 Los grupos sensibles pueden experimentar efectos de salud; la población en general no se verá afectada.
+            </div>
+        </div>
+        <div class="scale-item unhealthy">
+            Insalubre
+            <div class="tooltip">
+                ☠️ Todos pueden comenzar a experimentar efectos de salud; los grupos sensibles pueden tener efectos más graves.
+            </div>
+        </div>
+    </div>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const datePicker = document.getElementById("datePicker");
@@ -66,9 +123,10 @@
                 console.error("ID de comuna no disponible");
             }
         }
-
-        function goBack() {
-            window.location.href = 'http://127.0.0.1:8000/monica/';
+        function goBack() 
+        {
+        //window.history.back(); // Vuelve a la página anterior
+        window.location.href = 'http://127.0.0.1:8000/monica/';
         }
     </script>
 </body>

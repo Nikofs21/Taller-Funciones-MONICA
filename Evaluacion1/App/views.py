@@ -5,6 +5,7 @@ from App.DAOSensorParticulaImplement import SensorParticulaService
 from App.DAOComuna import ComunaDAO
 from App.DAOParticulas import ParticulasDAO
 from App.DAOComunaImplement import ComunaServiceDAO
+from django.db import connection
 
 
 def IndexView(request):
@@ -15,9 +16,8 @@ def IndexView(request):
 
 def mostrar_niveles(request):
     """
-    Vista que muestra los niveles de calidad del aire para una comuna seleccionada y una fecha específica.
+    Vista que muestra los niveles de calidad del aire y el mensaje general.
     """
-    # Obtener comuna seleccionada
     comuna_id = request.GET.get('comuna_id')
     if not comuna_id:
         return render(request, 'error.html', {'mensaje': 'Comuna no especificada.'})
@@ -27,35 +27,41 @@ def mostrar_niveles(request):
     except ValueError:
         return render(request, 'error.html', {'mensaje': 'ID de comuna no válido.'})
 
-    # Obtener datos de la comuna
     comuna = ComunaDAO.obtener_comuna_por_id(comuna_id)
     if not comuna:
         return render(request, 'error.html', {'mensaje': 'Comuna no encontrada.'})
 
-    # Obtener fecha seleccionada o usar la fecha actual
     fecha = request.GET.get('fecha')
-    if fecha:
-        try:
-            fecha = datetime.strptime(fecha, "%Y-%m-%d").strftime("%Y-%m-%d")
-        except ValueError:
-            return render(request, 'error.html', {'mensaje': 'Fecha no válida.'})
-    else:
+    if not fecha:
         fecha = datetime.now().strftime("%Y-%m-%d")
 
-    # Obtener datos de partículas y calcular sus niveles
     particulas_dto = ParticulasDAO.obtener_todas_las_particulas()
     particulas = {}
     for particula in particulas_dto:
         try:
-            # Obtener estado del aire para la comuna y la partícula seleccionada
             estado = SensorParticulaService.obtener_estado_aire(comuna_id, particula.id_particula, fecha)
             particulas[particula.nombre_particula] = {'estado': estado, 'descripcion': particula.descripcion}
         except SensorParticulaService.SensorParticulaNoEncontrada:
             particulas[particula.nombre_particula] = {'estado': 'Sin datos', 'descripcion': particula.descripcion}
 
-    # Renderizar la página con los datos
+    # Obtener el mensaje de calidad del aire
+    mensaje_calidad_aire = obtener_mensaje_calidad_aire(fecha, comuna_id)
+
     return render(request, 'semaforos.html', {
         'comuna': comuna,
         'air_quality_data': particulas,
         'fecha': fecha,
+        'mensaje_calidad_aire': mensaje_calidad_aire,
     })
+def obtener_mensaje_calidad_aire(fecha, comuna_id):
+    """
+    Llama al procedimiento almacenado para obtener el mensaje de calidad del aire para una comuna específica.
+    """
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            DECLARE @Resultado NVARCHAR(MAX);
+            EXEC sp_CalcularCalidadAire @Fecha = %s, @ComunaID = %s, @Resultado = @Resultado OUTPUT;
+            SELECT @Resultado;
+        """, [fecha, comuna_id])
+        resultado = cursor.fetchone()
+    return resultado[0] if resultado else "Sin datos disponibles"
