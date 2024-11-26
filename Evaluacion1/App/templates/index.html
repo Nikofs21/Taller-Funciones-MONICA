@@ -1,66 +1,62 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MONICA - Monitoreo Inteligente de la Calidad del Aire</title>
-    {% load static %}
+    <title>MonICA - Calidad del Aire</title>
+    {% load static%}
     <link rel="stylesheet" href="{% static 'estilos.css' %}">
 </head>
 <body>
-    <header>
-        <h1>MONICA</h1>
-        <h2>Monitoreo Inteligente de la Calidad del Aire</h2>
-        <p>Una herramienta virtual para visualizar y entender de manera sencilla la calidad del aire en tu comuna.</p>
-    </header>
-
-    <div class="content-wrapper">
-        <main>
-            <section class="intro">
-                <p>MONICA te permitirá visualizar los niveles de contaminación en tu área de manera rápida y sencilla, entregando información clara y comprensible sobre las partículas presentes en el aire. Así, podrás comprender mejor la calidad del aire de tu comuna y su impacto en tu salud.</p>
-            </section>
-
-            <div class="selection-box">
-                <label for="comunas">Selecciona una comuna:</label>
-                <form action="{% url 'mostrar_niveles' %}" method="GET">
-                    
-                    <select id="comunas" name="comuna_id">
-                        <option value="todas">Ver todas las comunas</option>
-                        {% for comuna in comunas %}
-                            <option value="{{ comuna.id }}">{{ comuna.nombre }}</option>
-                        {% endfor %}
-                    </select>
-                    
-                    <button type="submit" class="btn">Ver Niveles</button>
-                </form>
-            </div>
-        </main>
-
-        <footer>
-            <p>&copy; 2024 MONICA. Todos los derechos reservados.</p>
-        </footer>
+    <!-- Contenedor para el header y la barra de navegación -->
+    <div class="header-container">
+        <header>
+            <h1>MonICA</h1>
+            <p>Monitoreo de la calidad del aire en tu comuna.</p>
+        </header>
+        <!-- Barra de navegación fija -->
+        <nav class="nav-bar">
+            <button onclick="window.location.href='{% url 'login' %}'">Inicia sesión</button>
+            <a href="#quienes-somos">Quiénes Somos</a>
+            <a href="#contacto">Contáctanos</a>
+            <a href=""></a>
+        </nav>
+    </div>
+    
+    <!-- Selección de comuna -->
+    <div class="selection-box">
+        <label for="comunas">Selecciona una comuna:</label>
+        <form action="{% url 'mostrar_niveles' %}" method="GET">
+            <select id="comunas" name="comuna_id">
+                <option value="" disabled selected>Selecciona una opción</option>
+                <option value="todas">Ver todas las comunas</option>
+                {% for comuna in comunas %}
+                    <option value="{{ comuna.id }}">{{ comuna.nombre }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn">Ver Niveles</button>
+        </form>
     </div>
 
-    <script>
-        document.getElementById('ver-niveles').addEventListener('click', function() {
-            const comuna = document.getElementById('comunas').value;
+    <!-- Sección "Quiénes somos" -->
+    <section id="quienes-somos">
+        <h2>Quiénes Somos</h2>
+        <p>MonICA es una herramienta innovadora que tiene como objetivo proporcionar información clara y precisa sobre la calidad del aire en diferentes comunas. A través de datos actualizados, buscamos mejorar la calidad de vida de las personas, permitiendo tomar decisiones informadas sobre su salud y bienestar.</p>
+    </section>
 
-            // Mostrar alerta con la comuna seleccionada
-            if (comuna === "todas") {
-                alert("Has seleccionado ver todas las comunas.");
-            } else if (comuna === "la-florida") {
-                alert("Has seleccionado la comuna: La Florida.");
-            } else if (comuna === "puente-alto") {
-                alert("Has seleccionado la comuna: Puente Alto.");
-            } else if (comuna === "nunoa") {
-                alert("Has seleccionado la comuna: Ñuñoa.");
-            } else if (comuna === "macul") {
-                alert("Has seleccionado la comuna: Macul.");
-            } else if (comuna === "la-reina") {
-                alert("Has seleccionado la comuna: La Reina.");
-            }
-        });
-    </script>
+    <!-- Sección "Contáctanos" -->
+    <section id="contacto">
+        <h2>Contáctanos</h2>
+        <p>Si tienes alguna pregunta o deseas obtener más información sobre MonICA, no dudes en contactarnos:</p>
+        <ul>
+            <li>Email: contacto@monica.com</li>
+            <li>Teléfono: +56 9 1234 5678</li>
+        </ul>
+    </section>
+
+    <!-- Pie de página -->
+    <footer>
+        <p>&copy; 2024 MonICA. Todos los derechos reservados.</p>
+    </footer>
 </body>
 </html>

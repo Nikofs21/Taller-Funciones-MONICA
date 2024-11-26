@@ -6,26 +6,28 @@ class SensorParticulaService:
         pass
 
     @staticmethod
-    @staticmethod
     def obtener_estado_aire(comuna_id, particula_id, fecha):
         """
-        Calcula el estado del aire para una partícula específica en una comuna y fecha.
+        Obtiene el estado del aire para una partícula en una comuna y fecha específica.
         """
-        # Pasar el `comuna_id` al método DAO
+        # Intentar obtener promedio de registros para la partícula y fecha
         promedio = SensorParticulaDAO.obtener_promedio_por_particula_y_fecha(particula_id, comuna_id, fecha)
 
         if promedio is None:
-            raise SensorParticulaService.SensorParticulaNoEncontrada
+            # Si no hay promedios disponibles, intentamos obtener el registro completo
+            registro = SensorParticulaDAO.obtener_registro_por_particula_y_fecha(particula_id, fecha)
+            if registro:
+                # Priorizar validados, luego preliminares y finalmente no validados
+                if registro.registros_validados > 0:
+                    return SensorParticulaService._determinar_nivel(registro.registros_validados)
+                elif registro.registros_preliminares > 0:
+                    return SensorParticulaService._determinar_nivel(registro.registros_preliminares)
+                elif registro.registros_no_validados > 0:
+                    return SensorParticulaService._determinar_nivel(registro.registros_no_validados)
+            raise SensorParticulaService.SensorParticulaNoEncontrada()
 
-        # Determinar el estado según el promedio
-        if promedio <= 50:
-            return 'verde'
-        elif promedio <= 100:
-            return 'amarillo'
-        elif promedio <= 150:
-            return 'naranja'
-        else:
-            return 'rojo'
+        # Determinar el nivel en base al promedio
+        return SensorParticulaService._determinar_nivel(promedio)
 
     @staticmethod
     def determinar_estado_calidad_aire(valor, nom_particula):
@@ -100,6 +102,20 @@ class SensorParticulaService:
 
         return 'Desconocido', 'gris'  # Valor predeterminado si el tipo de contaminante no es válido
 
+
+    @staticmethod
+    def _determinar_nivel(valor):
+        """
+        Determina el nivel de calidad del aire basado en el valor numérico.
+        """
+        if valor <= 50:
+            return "verde"  # Bueno
+        elif valor <= 100:
+            return "amarillo"  # Moderado
+        elif valor <= 150:
+            return "naranja"  # Pre-emergencia
+        else:
+            return "rojo"  # Emergencia
         
         
 

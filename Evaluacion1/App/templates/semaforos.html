@@ -25,26 +25,22 @@
         </div>
     </header>
 
-    <!-- Contenedor para el mensaje del procedimiento almacenado -->
-    {% if mensaje_calidad_aire %}
-    <div class="alert-message">
-        <p>{{ mensaje_calidad_aire }}</p>
-    </div>
-    {% endif %}
-
     <div class="content-wrapper">
         <main>
+            <div class="message">
+                <h3>{{ mensaje_calidad_aire }}</h3>
+            </div>
             <div class="semaforos-container">
                 {% for particula, estado_color in air_quality_data.items %}
                 <div class="semaforo">
                     <div class="traffic-light">
-                        {% if estado_color == 'No hay datos' %}
+                        {% if estado_color.estado == 'Sin datos' %}
                             <p class="no-data">Hoy no hay datos para {{ particula }}</p>
                         {% else %}
-                        <div class="light red {% if estado_color.estado == 'rojo' %}active{% endif %}"></div>
-                        <div class="light orange {% if estado_color.estado == 'naranja' %}active{% endif %}"></div>
-                        <div class="light yellow {% if estado_color.estado == 'amarillo' %}active{% endif %}"></div>
-                        <div class="light green {% if estado_color.estado == 'verde' %}active{% endif %}"></div>
+                            <div class="light red {% if estado_color.estado == 'rojo' %}active{% endif %}"></div>
+                            <div class="light orange {% if estado_color.estado == 'naranja' %}active{% endif %}"></div>
+                            <div class="light yellow {% if estado_color.estado == 'amarillo' %}active{% endif %}"></div>
+                            <div class="light green {% if estado_color.estado == 'verde' %}active{% endif %}"></div>
                         {% endif %}
                     </div>
                     <div class="particle-name">{{ particula }}</div>
@@ -72,7 +68,6 @@
         </main>
     </div>
 
-    <!-- Footer con Tooltips -->
     <div class="footer">
         <div class="scale-item good">
             Bueno
@@ -99,6 +94,7 @@
             </div>
         </div>
     </div>
+
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const datePicker = document.getElementById("datePicker");
@@ -123,10 +119,9 @@
                 console.error("ID de comuna no disponible");
             }
         }
-        function goBack() 
-        {
-        //window.history.back(); // Vuelve a la página anterior
-        window.location.href = 'http://127.0.0.1:8000/monica/';
+
+        function goBack() {
+            window.location.href = 'http://127.0.0.1:8000/monica/';
         }
     </script>
 </body>
