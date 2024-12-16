@@ -25,4 +25,5 @@ urlpatterns = [
     path('niveles/', views.mostrar_niveles, name='mostrar_niveles'),
     path('login/', views.login_view, name='login'),
     path('register/', views.register, name='register'),
+    path('index_authenticated/', views.index_authenticated, name='index_authenticated'),
 ]

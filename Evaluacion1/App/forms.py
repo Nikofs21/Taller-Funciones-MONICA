@@ -5,18 +5,27 @@ import re
 
 class RegistrationForm(forms.ModelForm):
     password = forms.CharField(
-        widget=forms.PasswordInput,
+        widget=forms.PasswordInput(attrs={'placeholder': 'Ingresa una contraseña segura'}),
         label="Contraseña",
         help_text="Debe tener al menos 8 caracteres, incluyendo una mayúscula y un número."
     )
     confirm_password = forms.CharField(
-        widget=forms.PasswordInput,
+        widget=forms.PasswordInput(attrs={'placeholder': 'Repite la contraseña'}),
         label="Confirmar Contraseña"
     )
 
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email', 'username', 'password']
+        widgets = {
+            'first_name': forms.TextInput(attrs={'placeholder': 'Ingresa tu nombre'}),
+            'last_name': forms.TextInput(attrs={'placeholder': 'Ingresa tu apellido'}),
+            'email': forms.EmailInput(attrs={'placeholder': 'Ingresa tu correo electrónico'}),
+            'username': forms.TextInput(attrs={'placeholder': 'Crea un nombre de usuario'}),
+        }
+        help_texts = {
+            'username': None,  # Elimina el mensaje predeterminado
+        }
 
     def clean_password(self):
         password = self.cleaned_data.get('password')
