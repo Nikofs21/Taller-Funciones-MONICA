@@ -8,13 +8,25 @@ from App.DAOComunaImplement import ComunaServiceDAO
 from django.db import connection
 from .forms import RegistrationForm
 from django.contrib import messages
-
+from django.contrib.auth import authenticate, login, logout
 
 def IndexView(request):
+    # Página para usuarios no autenticados
     comunas_dto = ComunaDAO.obtener_todas_las_comunas()
     comunas = [{'id': comuna.id_comuna, 'nombre': comuna.nombre_comuna} for comuna in comunas_dto]
     return render(request, 'index.html', {'comunas': comunas})
 
+def index_authenticated(request):
+    # Página para usuarios autenticados
+    if not request.user.is_authenticated:
+        return redirect('index')
+
+    comunas_dto = ComunaDAO.obtener_todas_las_comunas()
+    comunas = [{'id': comuna.id_comuna, 'nombre': comuna.nombre_comuna} for comuna in comunas_dto]
+    return render(request, 'index_authenticated.html', {
+        'comunas': comunas,
+        'user': request.user
+    })
 
 def mostrar_niveles(request):
     """
@@ -67,7 +79,6 @@ def mostrar_niveles(request):
         'mensaje_calidad_aire': mensaje_calidad_aire,
     })
 
-
 def obtener_mensaje_calidad_aire(fecha, comuna_id):
     """
     Llama al procedimiento almacenado para obtener el mensaje de calidad del aire para una comuna específica.
@@ -82,7 +93,22 @@ def obtener_mensaje_calidad_aire(fecha, comuna_id):
     return resultado[0] if resultado else "Sin datos disponibles"
 
 def login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            messages.success(request, 'Inicio de sesión exitoso.')
+            return redirect('index_authenticated')  # Redirige a la vista para usuarios autenticados
+        else:
+            messages.error(request, 'Credenciales incorrectas. Inténtalo nuevamente.')
     return render(request, 'login.html')
+
+def logout_view(request):
+    logout(request)
+    messages.success(request, 'Sesión cerrada con éxito.')
+    return redirect('index')
 
 def register(request):
     if request.method == 'POST':

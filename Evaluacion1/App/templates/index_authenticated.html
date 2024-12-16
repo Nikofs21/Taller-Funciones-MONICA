@@ -3,28 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MonICA - Calidad del Aire</title>
+    <title>MonICA - Bienvenido</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'estilos.css' %}">
 </head>
 <body>
-    <!-- Contenedor para el header y la barra de navegación -->
     <div class="header-container">
         <header>
             <h1>MonICA</h1>
             <p>Monitoreo de la calidad del aire en tu comuna.</p>
         </header>
-        <!-- Barra de navegación fija -->
         <nav class="nav-bar">
-            <button onclick="window.location.href='{% url 'login' %}'">Inicia sesión</button>
+            <span>Bienvenido, {{ user.first_name }} {{ user.last_name }}</span>
+            <a href="{% url 'logout' %}">Cerrar sesión</a>
             <a href="#quienes-somos">Quiénes Somos</a>
             <a href="#contacto">Contáctanos</a>
         </nav>
     </div>
-    
-    <!-- Selección de comuna -->
     <div class="selection-box">
-        <label for="comunas">Selecciona una comuna:</label>
+        <label for="comunas">Hola, {{ user.first_name }}. Selecciona una comuna:</label>
         <form action="{% url 'mostrar_niveles' %}" method="GET">
             <select id="comunas" name="comuna_id">
                 <option value="" disabled selected>Selecciona una opción</option>
