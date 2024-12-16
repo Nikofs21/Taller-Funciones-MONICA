@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from datetime import datetime
 from App import DAOComunaImplement
 from App.DAOSensorParticulaImplement import SensorParticulaService
@@ -6,6 +6,8 @@ from App.DAOComuna import ComunaDAO
 from App.DAOParticulas import ParticulasDAO
 from App.DAOComunaImplement import ComunaServiceDAO
 from django.db import connection
+from .forms import RegistrationForm
+from django.contrib import messages
 
 
 def IndexView(request):
@@ -81,3 +83,17 @@ def obtener_mensaje_calidad_aire(fecha, comuna_id):
 
 def login_view(request):
     return render(request, 'login.html')
+
+def register(request):
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Usuario registrado con éxito. Ahora puede iniciar sesión.')
+            return redirect('login')
+        else:
+            messages.error(request, 'Por favor corrija los errores a continuación.')
+    else:
+        form = RegistrationForm()
+
+    return render(request, 'register.html', {'form': form})
