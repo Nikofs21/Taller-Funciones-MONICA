@@ -44,3 +44,11 @@ class RegistrationForm(forms.ModelForm):
             self.add_error('confirm_password', "Las contraseñas no coinciden.")
 
         return cleaned_data
+
+    def save(self, commit=True):
+        # Sobrescribimos el método save para cifrar la contraseña
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data['password'])  # Cifra la contraseña
+        if commit:
+            user.save()
+        return user
