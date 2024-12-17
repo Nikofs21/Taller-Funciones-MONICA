@@ -10,7 +10,7 @@ from .forms import RegistrationForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 
-# Vista que renderiza página de inicio para usuarios sin inicio de sesión
+# Vista que renderiza página de inicio para usuarios sin inicio de sesion
 def IndexView(request):
     # Página para usuarios no autenticados
     comunas_dto = ComunaDAO.obtener_todas_las_comunas()
