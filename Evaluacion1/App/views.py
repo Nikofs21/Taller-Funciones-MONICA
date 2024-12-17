@@ -10,12 +10,14 @@ from .forms import RegistrationForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 
+# Vista que renderiza página de inicio para usuarios sin inicio de sesión
 def IndexView(request):
     # Página para usuarios no autenticados
     comunas_dto = ComunaDAO.obtener_todas_las_comunas()
     comunas = [{'id': comuna.id_comuna, 'nombre': comuna.nombre_comuna} for comuna in comunas_dto]
     return render(request, 'index.html', {'comunas': comunas})
 
+# Vista que discrimina que index utilizar, si la de autenticación o la genérica
 def index_authenticated(request):
     # Página para usuarios autenticados
     if not request.user.is_authenticated:
@@ -28,6 +30,7 @@ def index_authenticated(request):
         'user': request.user
     })
 
+# Vista que controla como se traen los niveles de particulas
 def mostrar_niveles(request):
     """
     Vista que muestra los niveles de calidad del aire y el mensaje general.
@@ -79,6 +82,7 @@ def mostrar_niveles(request):
         'mensaje_calidad_aire': mensaje_calidad_aire,
     })
 
+# Vista que controla y ejecuta el procedimiento almacenado
 def obtener_mensaje_calidad_aire(fecha, comuna_id):
     """
     Llama al procedimiento almacenado para obtener el mensaje de calidad del aire para una comuna específica.
@@ -92,6 +96,7 @@ def obtener_mensaje_calidad_aire(fecha, comuna_id):
         resultado = cursor.fetchone()
     return resultado[0] if resultado else "Sin datos disponibles"
 
+# Vista que controla el inicio de sesión verificando con la base de datos
 def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -105,11 +110,13 @@ def login_view(request):
             messages.error(request, 'Credenciales incorrectas. Inténtalo nuevamente.')
     return render(request, 'login.html')
 
+# Vista que controla el logout de la sesión iniciada
 def logout_view(request):
     logout(request)
     messages.success(request, 'Sesión cerrada con éxito.')
     return redirect('index')
 
+# vista que controla el registro de usuarios
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
