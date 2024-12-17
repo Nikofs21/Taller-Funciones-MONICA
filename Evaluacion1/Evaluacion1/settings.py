@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-h(mk4zh$9=fd7!y&o+0p&5@_)+rt%7^361#n&-=9-)!)^e38t=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['servidormonica-fbcug3hheke0fnd4.brazilsouth-01.azurewebsites.net/index', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['servidormonica-fbcug3hheke0fnd4.brazilsouth-01.azurewebsites.net/index', '127.0.0.1']
 
 
 # Application definition
